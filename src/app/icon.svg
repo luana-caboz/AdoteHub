@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="AdoteHub">
+  <circle cx="64" cy="64" r="64" fill="#1F6B4F"/>
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#FF7A59" stroke-width="8"/>
+  <circle cx="64" cy="64" r="42" fill="none" stroke="#FBF7F1" stroke-width="3"/>
+  <path d="M64 30 L94 55 Q96 57 96 60 V90 Q96 94 92 94 H36 Q32 94 32 90 V60 Q32 57 34 55 Z" fill="#FFFFFF"/>
+  <ellipse cx="64" cy="77" rx="10.5" ry="9" fill="#FF7A59"/>
+  <circle cx="51.5" cy="63.5" r="4.6" fill="#FF7A59"/>
+  <circle cx="59" cy="57" r="4.6" fill="#FF7A59"/>
+  <circle cx="69" cy="57" r="4.6" fill="#FF7A59"/>
+  <circle cx="76.5" cy="63.5" r="4.6" fill="#FF7A59"/>
+</svg>
