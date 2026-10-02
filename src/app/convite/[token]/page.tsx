@@ -3,7 +3,7 @@ import { PlatformHeader } from "@/components/brand/logo";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABEL, type MemberRole } from "@/modules/organizations/types";
 import { getCurrentUser } from "@/modules/organizations/service";
-import { LoginForm } from "@/app/entrar/login-form";
+import { FirstAccessForm } from "@/app/primeiro-acesso/first-access-form";
 import { AcceptInviteForm } from "./accept-form";
 
 export const metadata: Metadata = { title: "Convite" };
@@ -49,8 +49,17 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
             </div>
             {!user ? (
               <>
-                <p className="corpo-p">Primeiro, confirme seu e-mail:</p>
-                <LoginForm next={`/convite/${token}`} defaultEmail={data.email} />
+                <p className="corpo-p">Primeiro acesso? Confirme seu e-mail e crie sua senha:</p>
+                <FirstAccessForm next={`/convite/${token}`} defaultEmail={data.email} />
+                <p className="corpo-p">
+                  Já tem senha?{" "}
+                  <a
+                    className="font-bold text-verde underline underline-offset-4"
+                    href={`/entrar?next=${encodeURIComponent(`/convite/${token}`)}&email=${encodeURIComponent(data.email)}`}
+                  >
+                    Entrar →
+                  </a>
+                </p>
               </>
             ) : user.email?.toLowerCase() !== data.email ? (
               <div className="flex flex-col gap-3">

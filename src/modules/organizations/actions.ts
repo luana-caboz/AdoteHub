@@ -82,6 +82,19 @@ export async function adminUpdateOrganizationAction(formData: FormData) {
   revalidatePath("/admin");
 }
 
+export async function adminSetOrgHomeAction(formData: FormData) {
+  const { db } = await requirePlatformAdmin();
+  const city = optionalText(80).parse(formData.get("city"));
+  const { error } = await db.rpc("admin_set_org_home", {
+    p_org: String(formData.get("orgId")),
+    p_show: formData.get("showOnHome") === "on",
+    p_city: city,
+  });
+  if (error) throw new Error(friendlyDbError(error));
+  revalidatePath("/admin");
+  revalidatePath("/");
+}
+
 const inviteSchema = z.object({
   email: z.string().trim().toLowerCase().email("E-mail inválido"),
   role: z.enum(["member", "admin", "owner"]),

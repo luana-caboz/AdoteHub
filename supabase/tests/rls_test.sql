@@ -251,6 +251,66 @@ do $$ begin
   assert (select count(*) from public.animal_photos) = 2, 'fotos do Rex (reservado) são públicas';
 end $$;
 
+\echo '7. Home: lista pública de ONGs (opt-in) com contagem de disponíveis'
+reset role; select tests.logout(); set role anon;
+do $$ begin
+  assert (select count(*) from public.list_home_orgs()) = 0, 'ninguém marcou show_on_home: lista vazia';
+end $$;
+
+-- responsável da ONG não consegue se marcar na home
+reset role; select tests.login('ana@ong1.test'); set role authenticated;
+do $$ begin
+  begin
+    update public.organizations set show_on_home = true where slug = 'viralataclub';
+    raise exception 'SHOULD_FAIL';
+  exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
+  begin
+    perform public.admin_set_org_home((select id from public.organizations where slug = 'viralataclub'), true);
+    raise exception 'SHOULD_FAIL';
+  exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
+end $$;
+
+-- admin da plataforma marca viralataclub; patasdosul fica de fora
+reset role; select tests.login('admin@adotehub.test'); set role authenticated;
+select public.admin_set_org_home(id, true, 'Curitiba') from public.organizations where slug = 'viralataclub';
+
+-- dados de contagem (como dono do banco). Rex (reservado) e Mimi (adotada) já existiam.
+reset role;
+insert into public.animals (organization_id, external_id, name, status)
+  select id, 'h1', 'Disponível', 'available' from public.organizations where slug = 'viralataclub';
+insert into public.animals (organization_id, external_id, name, status, archived_at)
+  select id, 'h2', 'Disponível arquivado', 'available', now() from public.organizations where slug = 'viralataclub';
+insert into public.animals (organization_id, external_id, name, status)
+  select id, 'h3', 'Reservado', 'reserved' from public.organizations where slug = 'viralataclub';
+insert into public.animals (organization_id, external_id, name, status)
+  select id, 'h4', 'Indisponível', 'unavailable' from public.organizations where slug = 'viralataclub';
+
+select tests.logout(); set role anon;
+do $$
+declare v text;
+begin
+  assert (select count(*) from public.list_home_orgs()) = 1, 'anônimo vê só ONGs com show_on_home';
+  assert (select slug from public.list_home_orgs()) = 'viralataclub', 'ONG marcada aparece';
+  assert (select available_animals_count from public.list_home_orgs()) = 1,
+    'contagem ignora arquivados, reservados, adotados e indisponíveis';
+  assert (select city from public.list_home_orgs()) = 'Curitiba', 'cidade vem da função';
+  select pg_get_function_result('public.list_home_orgs()'::regprocedure) into v;
+  assert v = 'TABLE(slug text, name text, logo_path text, city text, available_animals_count bigint)',
+    'a função devolve só os campos permitidos: ' || v;
+end $$;
+
+-- ONG arquivada some, mesmo marcada
+reset role; select tests.login('admin@adotehub.test'); set role authenticated;
+select public.admin_update_organization(id, p_archived => true) from public.organizations where slug = 'viralataclub';
+reset role; select tests.logout(); set role anon;
+do $$ begin
+  assert (select count(*) from public.list_home_orgs()) = 0, 'ONG arquivada não aparece na home';
+  begin
+    perform public.admin_set_org_home(gen_random_uuid(), true);
+    raise exception 'SHOULD_FAIL';
+  exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
+end $$;
+
 reset role;
 \o
 \echo 'OK — todos os testes passaram'

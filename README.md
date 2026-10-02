@@ -55,11 +55,12 @@ supabase/
    - Site URL: `http://localhost:3000` (depois, o domínio de produção)
    - Redirect URLs: `http://localhost:3000/**` e `https://<seu-domínio>/**`
 4. **Authentication → Emails → SMTP** — **obrigatório para as ONGs receberem o link de acesso.** O SMTP padrão do Supabase só envia para membros da equipe do projeto. Use o [Resend](https://resend.com) (plano grátis) ou outro SMTP.
-5. **Authentication → Emails → Templates** — troque o link em **Magic Link** e **Confirm signup** por:
-   ```html
-   <a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email">Entrar no AdoteHub</a>
-   ```
-   Assim o link funciona mesmo se a pessoa pedir no computador e abrir o e-mail no celular.
+5. **Authentication → Emails → Templates** — cole o conteúdo destes arquivos (o link usa `{{ .RedirectTo }}`, então funciona mesmo se a pessoa pedir no computador e abrir o e-mail no celular):
+   - **Confirm signup** (primeiro acesso, e-mail ainda sem conta): `supabase/email-templates/confirm-signup.html`
+   - **Magic Link** (quem já tem conta e pede o link de novo, por exemplo ao esquecer a senha): `supabase/email-templates/magic-link.html`
+6. **Authentication → Sign In / Providers → Email** — mantenha **Confirm email** ligado e, se quiser, ajuste o tamanho mínimo da senha para 8.
+
+Como o acesso funciona: no primeiro acesso a pessoa recebe um link, confirma o e-mail e cria a senha em `/definir-senha`. Depois disso, entra em `/entrar` com e-mail e senha. Quem esqueceu a senha usa o mesmo link (`/primeiro-acesso`).
 
 ### 2. App
 
@@ -71,7 +72,7 @@ npm run dev
 
 ### 3. Tornar-se admin da plataforma
 
-Entre em `http://localhost:3000/entrar` com seu e-mail. Depois, no SQL Editor:
+Faça o primeiro acesso em `http://localhost:3000/primeiro-acesso` com seu e-mail (confirme pelo link e crie a senha). Depois, no SQL Editor:
 
 ```sql
 insert into public.platform_admins (user_id)

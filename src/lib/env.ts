@@ -15,3 +15,14 @@ export function publicMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   return `${env.supabaseUrl}/storage/v1/object/public/${MEDIA_BUCKET}/${path}`;
 }
+
+export const contato = {
+  whatsapp: (process.env.NEXT_PUBLIC_CONTATO_WHATSAPP ?? "").replace(/\D/g, ""),
+  email: (process.env.NEXT_PUBLIC_CONTATO_EMAIL ?? "").trim(),
+};
+
+export function contatoHref(): string | null {
+  if (contato.whatsapp) return `https://wa.me/${contato.whatsapp}`;
+  if (contato.email) return `mailto:${contato.email}`;
+  return null;
+}
