@@ -30,6 +30,7 @@ export interface Organization {
   instagram: string | null;
   maxPhotosPerAnimal: number;
   adoptionExtraQuestions: ExtraQuestion[];
+  showOnHome: boolean;
   archivedAt: string | null;
 }
 
@@ -54,4 +55,12 @@ export interface Membership {
   role: MemberRole;
   name: string;
   slug: string;
+}
+
+export interface HomeOrg {
+  slug: string;
+  name: string;
+  logoUrl: string | null;
+  city: string | null;
+  availableAnimals: number;
 }
