@@ -20,6 +20,6 @@ export async function GET(request: NextRequest) {
     ok = !error;
   }
 
-  const target = new URL(ok ? next : `/entrar?erro=link&next=${encodeURIComponent(next)}`, url.origin);
+  const target = new URL(ok ? next : `/primeiro-acesso?erro=link&next=${encodeURIComponent(next)}`, url.origin);
   return NextResponse.redirect(target);
 }
