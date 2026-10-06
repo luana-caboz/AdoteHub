@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { PlatformHeader } from "@/components/brand/logo";
+import { friendlyDbError } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABEL, type MemberRole } from "@/modules/organizations/types";
 import { getCurrentUser } from "@/modules/organizations/service";
 import { FirstAccessForm } from "@/app/primeiro-acesso/first-access-form";
-import { AcceptInviteForm } from "./accept-form";
 
 export const metadata: Metadata = { title: "Convite" };
 
@@ -23,6 +24,14 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       }>()
     : { data: null };
   const user = await getCurrentUser();
+
+  // Logada(o) com o e-mail do convite: aceita na hora e vai direto para o painel da ONG.
+  let acceptError: string | null = null;
+  if (data?.state === "pending" && user?.email?.toLowerCase() === data.email) {
+    const { data: slug, error } = await db.rpc("accept_invite", { p_token: token });
+    if (!error && typeof slug === "string") redirect(`/painel/${slug}`);
+    acceptError = friendlyDbError(error);
+  }
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -72,7 +81,9 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
                 </form>
               </div>
             ) : (
-              <AcceptInviteForm token={token} />
+              <p role="alert" className="rounded-md bg-erro-50 px-4 py-3 text-sm font-semibold text-erro">
+                {acceptError ?? "Não foi possível aceitar o convite. Tente abrir o link novamente."}
+              </p>
             )}
           </>
         )}

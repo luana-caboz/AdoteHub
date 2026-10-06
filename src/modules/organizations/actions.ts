@@ -1,12 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getSiteUrl } from "@/lib/site-url";
 import { friendlyDbError, type ActionState } from "@/lib/errors";
 import { slugify, validateOrgSlug } from "@/lib/slug";
-import { createClient } from "@/lib/supabase/server";
 import type { Db } from "@/lib/supabase/types";
 import { requireOrgContext, requirePlatformAdmin } from "./service";
 import type { ExtraQuestion } from "./types";
@@ -235,12 +233,4 @@ export async function saveExtraQuestionsAction(_prev: ActionState, formData: For
   if (error) return { ok: false, error: friendlyDbError(error) };
   revalidatePath(`/${slug}`, "layout");
   return { ok: true, message: "Formulário atualizado." };
-}
-
-export async function acceptInviteAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const token = String(formData.get("token"));
-  const db = await createClient();
-  const { data: slug, error } = await db.rpc("accept_invite", { p_token: token });
-  if (error || typeof slug !== "string") return { ok: false, error: friendlyDbError(error) };
-  redirect(`/painel/${slug}`);
 }
