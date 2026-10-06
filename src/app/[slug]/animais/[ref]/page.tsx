@@ -1,5 +1,9 @@
-import { Paw } from "@/components/brand/paw";
+import { AdoptFab } from "@/components/catalog/adopt-fab";
+import { AnimalGallery } from "@/components/catalog/animal-gallery";
+import { DetailCard, DetailRow, HealthRow } from "@/components/catalog/detail-card";
+import { HeartIcon, InfoIcon, SparkIcon, UsersIcon } from "@/components/catalog/icons";
 import { ShareButtons } from "@/components/catalog/share-buttons";
+import { Tag } from "@/components/catalog/tag";
 import { env } from "@/lib/env";
 import { animalPath } from "@/lib/slug";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -44,22 +48,6 @@ export async function generateMetadata({
   };
 }
 
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | null | undefined;
-}) {
-  if (!value) return null;
-  return (
-    <div>
-      <dt className="rotulo text-brand-2">{label}</dt>
-      <dd className="font-bold">{value}</dd>
-    </div>
-  );
-}
-
 export default async function AnimalPage({ params }: { params: Params }) {
   const { slug, ref } = await params;
   const data = await getPublicAnimalByRef(slug, ref);
@@ -70,148 +58,123 @@ export default async function AnimalPage({ params }: { params: Params }) {
   if (`/${slug}/animais/${ref}` !== canonical) permanentRedirect(canonical);
 
   const extras = extraValues(
-    await listCustomFields(createPublicClient(), org.id),
+    (await listCustomFields(createPublicClient(), org.id)).filter((f) => f.isPublic),
     animal.extra,
   );
 
-  const photos = animal.photos.length ? animal.photos : [];
+  const photos = animal.photos;
   const cover = photos.find((p) => p.id === animal.coverPhotoId) ?? photos[0];
   const ordered = cover
     ? [cover, ...photos.filter((p) => p.id !== cover.id)]
     : [];
   const url = `${env.siteUrl}${canonical}`;
-  const reserved = animal.status === "reserved";
+  const available = animal.status === "available";
+
+  const sociability = [
+    { label: "Com crianças", value: animal.goodWithKids },
+    { label: "Com cães", value: animal.goodWithDogs },
+    { label: "Com gatos", value: animal.goodWithCats },
+  ].filter((r) => r.value !== null);
 
   return (
-    <article className="grid gap-8 lg:grid-cols-2">
-      <div className="flex flex-col gap-3">
-        {ordered.length > 0 ? (
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto rounded-lg">
-            {ordered.map((p, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={p.id}
-                src={p.url}
-                alt={`${animal.name} — foto ${i + 1}`}
-                width={p.width ?? undefined}
-                height={p.height ?? undefined}
-                loading={i === 0 ? "eager" : "lazy"}
-                className="aspect-square w-full flex-none snap-center rounded-lg object-cover shadow-card"
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex aspect-square items-center justify-center rounded-lg bg-verde-50">
-            <Paw className="h-20 w-20" />
-          </div>
-        )}
-        {ordered.length > 1 && (
-          <p className="text-center corpo-p">
-            Deslize para ver {ordered.length} fotos
-          </p>
-        )}
+    <article>
+      <Link
+        href={`/${slug}`}
+        className="mb-3 inline-flex min-h-11 items-center rounded-md font-bold text-brand-ink underline underline-offset-4 lg:mb-4 lg:min-h-0"
+      >
+        ← Todos os animais
+      </Link>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
+      <div className="lg:sticky lg:top-[calc(var(--header-h)+24px)] lg:self-start">
+        <AnimalGallery
+          name={animal.name}
+          photos={ordered}
+          badge={
+            !available && (
+              <span className={`${STATUS_TAG[animal.status]} absolute left-3 top-3 shadow-card`}>
+                {STATUS_LABEL[animal.status]}
+              </span>
+            )
+          }
+        />
       </div>
 
-      <div className="flex flex-col gap-5">
-        <div>
-          <Link
-            href={`/${slug}`}
-            className="font-bold text-brand underline underline-offset-4"
-          >
-            ← Todos os animais
-          </Link>
-          <h1 className="display-l mt-2 text-brand">{animal.name}</h1>
-          {reserved && (
-            <span className={`${STATUS_TAG[animal.status]} mt-3`}>
-              {STATUS_LABEL[animal.status]}
-            </span>
-          )}
-        </div>
+      <div className="flex min-w-0 flex-col items-start gap-6">
+        <div className="flex flex-col items-start gap-4">
+          <h1 className="display-l text-brand-ink">{animal.name}</h1>
 
-        <dl className="card grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <Info label="Espécie" value={SPECIES_LABEL[animal.species]} />
-          <Info
-            label="Sexo"
-            value={animal.sex !== "unknown" ? SEX_LABEL[animal.sex] : null}
-          />
-          <Info
-            label="Idade"
-            value={animal.ageGroup ? AGE_LABEL[animal.ageGroup] : null}
-          />
-          <Info
-            label="Porte"
-            value={animal.size ? SIZE_LABEL[animal.size] : null}
-          />
-          <Info label="Raça" value={animal.breed} />
-          <Info label="Cor" value={animal.color} />
-          <Info
-            label="Castrado(a)"
-            value={animal.neutered === null ? null : yesNo(animal.neutered)}
-          />
-          <Info
-            label="Vacinado(a)"
-            value={animal.vaccinated === null ? null : yesNo(animal.vaccinated)}
-          />
-          <Info
-            label="Vermifugado(a)"
-            value={animal.dewormed === null ? null : yesNo(animal.dewormed)}
-          />
-          <Info
-            label="Com crianças"
-            value={
-              animal.goodWithKids === null ? null : yesNo(animal.goodWithKids)
-            }
-          />
-          <Info
-            label="Com cães"
-            value={
-              animal.goodWithDogs === null ? null : yesNo(animal.goodWithDogs)
-            }
-          />
-          <Info
-            label="Com gatos"
-            value={
-              animal.goodWithCats === null ? null : yesNo(animal.goodWithCats)
-            }
-          />
-        </dl>
-
-        {animal.description && (
-          <p className="whitespace-pre-line lead text-tinta">
-            {animal.description}
-          </p>
-        )}
-        {animal.specialNeeds && (
-          <div className="rounded-lg bg-mel-50 p-5 text-mel">
-            <p className="rotulo">Cuidados especiais</p>
-            <p className="whitespace-pre-line">{animal.specialNeeds}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {animal.sex !== "unknown" && <Tag tone="brand">{SEX_LABEL[animal.sex]}</Tag>}
+            {animal.size && <Tag tone="brand-2">Porte {SIZE_LABEL[animal.size].toLowerCase()}</Tag>}
+            {animal.ageGroup && <Tag tone="brand-3">{AGE_LABEL[animal.ageGroup]}</Tag>}
           </div>
-        )}
 
-        {extras.length > 0 && (
-          <dl className="flex flex-col gap-3">
-            {extras.map(({ field, value }) => (
-              <div key={field.key}>
-                <dt className="rotulo text-tinta-suave">{field.label}</dt>
-                <dd className="whitespace-pre-line">{value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-
-        <div className="flex flex-col gap-3">
-          <Link href={`${canonical}/adotar`} className="btn-brand">
-            {reserved
-              ? "Quero entrar na lista de interessados"
-              : `Quero adotar ${animal.name}`}
-          </Link>
           <ShareButtons
+            withIcon
             url={url}
             title={`${animal.name} para adoção`}
             text={`Conheça ${animal.name}, para adoção na ${org.name}!`}
           />
         </div>
+
+        {!available && (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-base text-tinta">{animal.name} não está disponível para adoção agora.</p>
+            <Link
+              href={`/${slug}`}
+              className="rounded-md font-bold text-brand-ink underline underline-offset-4"
+            >
+              Ver outros animais →
+            </Link>
+          </div>
+        )}
+
+        {animal.description && (
+          <section className="card w-full">
+            <h2 className="titulo-card mb-3 text-brand-ink">Conheça {animal.name}</h2>
+            <p className="whitespace-pre-line text-base text-tinta">{animal.description}</p>
+          </section>
+        )}
+
+        <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
+          <DetailCard title="Informações" icon={<InfoIcon />}>
+            <DetailRow label="Espécie">{SPECIES_LABEL[animal.species]}</DetailRow>
+            {animal.breed && <DetailRow label="Raça">{animal.breed}</DetailRow>}
+            {animal.color && <DetailRow label="Cor">{animal.color}</DetailRow>}
+            {animal.ageGroup && <DetailRow label="Idade">{AGE_LABEL[animal.ageGroup]}</DetailRow>}
+          </DetailCard>
+
+          <DetailCard title="Saúde" icon={<HeartIcon />}>
+            <HealthRow label="Castrado(a)" value={animal.neutered} />
+            <HealthRow label="Vacinado(a)" value={animal.vaccinated} />
+            <HealthRow label="Vermifugado(a)" value={animal.dewormed} />
+            {animal.specialNeeds && <DetailRow label="Condição e cuidados">{animal.specialNeeds}</DetailRow>}
+          </DetailCard>
+
+          {sociability.length > 0 && (
+            <DetailCard title="Sociabilidade" icon={<UsersIcon />}>
+              {sociability.map((r) => (
+                <DetailRow key={r.label} label={r.label}>
+                  {yesNo(r.value)}
+                </DetailRow>
+              ))}
+            </DetailCard>
+          )}
+
+          {extras.length > 0 && (
+            <DetailCard title={`Mais sobre ${animal.name}`} icon={<SparkIcon />}>
+              {extras.map(({ field, value }) => (
+                <DetailRow key={field.key} label={field.label}>
+                  {value}
+                </DetailRow>
+              ))}
+            </DetailCard>
+          )}
+        </div>
       </div>
+      </div>
+
+      {available && <AdoptFab href={`${canonical}/adotar`} label={`Quero adotar ${animal.name}`} />}
     </article>
   );
 }

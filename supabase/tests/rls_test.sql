@@ -311,6 +311,44 @@ do $$ begin
   exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
 end $$;
 
+\echo '8. Campos extras: público só vê os marcados; equipe de outra ONG não escreve'
+reset role;
+insert into public.animal_custom_fields (organization_id, key, label, is_public)
+  select id, 'vacina', 'Vacina', true from public.organizations where slug = 'patasdosul';
+insert into public.animal_custom_fields (organization_id, key, label, is_public)
+  select id, 'interno', 'Anotação interna', false from public.organizations where slug = 'patasdosul';
+select tests.logout(); set role anon;
+do $$ begin
+  assert (select count(*) from public.animal_custom_fields) = 1, 'anônimo vê só campos públicos';
+  assert (select key from public.animal_custom_fields) = 'vacina', 'campo público visível';
+end $$;
+reset role; select tests.login('ana@ong1.test'); set role authenticated;
+do $$ begin
+  assert (select count(*) from public.animal_custom_fields) = 1, 'equipe de outra ONG vê só o campo público';
+  begin
+    insert into public.animal_custom_fields (organization_id, key, label)
+      select id, 'x', 'X' from public.organizations where slug = 'patasdosul';
+    raise exception 'SHOULD_FAIL';
+  exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
+end $$;
+
+\echo '9. Cor de apoio: a ONG edita; só hex válido; padrão nulo'
+reset role; select tests.login('ana@ong1.test'); set role authenticated;
+do $$ begin
+  assert (select support_color from public.organizations where slug = 'viralataclub') is null, 'cor de apoio começa nula';
+  update public.organizations set support_color = '#0A7F5B' where slug = 'viralataclub';
+  assert (select support_color from public.organizations where slug = 'viralataclub') = '#0A7F5B', 'responsável salva a cor de apoio';
+  update public.organizations set support_color = null where slug = 'viralataclub';
+  begin
+    update public.organizations set support_color = 'verde' where slug = 'viralataclub';
+    raise exception 'SHOULD_FAIL';
+  exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
+  begin
+    update public.organizations set support_color = '#12345' where slug = 'viralataclub';
+    raise exception 'SHOULD_FAIL';
+  exception when others then if sqlerrm = 'SHOULD_FAIL' then raise; end if; end;
+end $$;
+
 reset role;
 \o
 \echo 'OK — todos os testes passaram'

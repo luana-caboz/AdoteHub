@@ -23,6 +23,7 @@ export interface Organization {
   logoUrl: string | null;
   primaryColor: string;
   secondaryColor: string;
+  supportColor: string | null;
   city: string | null;
   state: string | null;
   contactEmail: string | null;

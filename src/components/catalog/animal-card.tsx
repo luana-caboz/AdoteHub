@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { Paw } from "@/components/brand/paw";
+import { Tag } from "@/components/catalog/tag";
 import { animalPath } from "@/lib/slug";
 import { AGE_LABEL, SEX_LABEL, SIZE_LABEL, SPECIES_LABEL, STATUS_LABEL, STATUS_TAG } from "@/modules/animals/labels";
 import type { Animal } from "@/modules/animals/types";
 
 export function AnimalCard({ orgSlug, animal }: { orgSlug: string; animal: Animal }) {
   const tags = [
-    animal.sex !== "unknown" ? { label: SEX_LABEL[animal.sex], className: "tag-brand" } : null,
-    animal.size ? { label: `Porte ${SIZE_LABEL[animal.size].toLowerCase()}`, className: "tag-brand-2" } : null,
-    animal.ageGroup ? { label: AGE_LABEL[animal.ageGroup], className: "tag-brand-2" } : null,
+    animal.sex !== "unknown" ? { label: SEX_LABEL[animal.sex], tone: "brand" as const } : null,
+    animal.size ? { label: `Porte ${SIZE_LABEL[animal.size].toLowerCase()}`, tone: "brand-2" as const } : null,
+    animal.ageGroup ? { label: AGE_LABEL[animal.ageGroup], tone: "brand-3" as const } : null,
   ]
     .filter((t) => t !== null)
     .slice(0, 3);
@@ -19,7 +20,7 @@ export function AnimalCard({ orgSlug, animal }: { orgSlug: string; animal: Anima
       href={animalPath(orgSlug, animal.name, animal.code)}
       className="card-link group flex h-full flex-col overflow-hidden rounded-lg p-0!"
     >
-      <div className="relative aspect-[4/5] bg-verde-50">
+      <div className="relative aspect-[4/5] tint-brand">
         {animal.cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={animal.cover.thumbUrl} alt={animal.name} loading="lazy" className="h-full w-full object-cover" />
@@ -33,18 +34,18 @@ export function AnimalCard({ orgSlug, animal }: { orgSlug: string; animal: Anima
         )}
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <p className="titulo-card text-brand">{animal.name}</p>
+        <p className="titulo-card text-brand-ink">{animal.name}</p>
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {tags.map((t) => (
-              <span key={t.label} className={t.className}>
+              <Tag key={t.label} tone={t.tone}>
                 {t.label}
-              </span>
+              </Tag>
             ))}
           </div>
         )}
         {meta && <p className="corpo-p">{meta}</p>}
-        <span className="mt-auto font-bold text-brand group-hover:underline group-hover:underline-offset-4">Conhecer {animal.name} →</span>
+        <span className="mt-auto font-bold text-brand-ink group-hover:underline group-hover:underline-offset-4">Conhecer {animal.name} →</span>
       </div>
     </Link>
   );

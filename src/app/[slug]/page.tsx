@@ -67,7 +67,7 @@ export default async function CatalogPage({
     <div className="flex flex-col gap-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="display-l text-brand">Adote um amigo</h1>
+          <h1 className="display-l text-brand-ink">Adote um amigo</h1>
           <p className="lead mt-2">
             {total} {total === 1 ? "animal esperando" : "animais esperando"} por um lar
           </p>
@@ -99,7 +99,7 @@ export default async function CatalogPage({
             key={name}
             className="flex h-[52px] flex-col justify-center rounded-pill border-[1.5px] border-linha bg-papel px-5 focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-foco"
           >
-            <span className={`rotulo ${i % 2 === 0 ? "text-brand" : "text-brand-2"}`}>{label}</span>
+            <span className={`rotulo ${i % 2 === 0 ? "text-brand-ink" : "text-brand-2-ink"}`}>{label}</span>
             <select name={name} defaultValue={value ?? ""} className="w-full bg-transparent text-sm font-bold text-tinta outline-none">
               <option value="">Todos</option>
               {opts.map((o) => (

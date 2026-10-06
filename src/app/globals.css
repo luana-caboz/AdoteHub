@@ -39,11 +39,23 @@
 
 @theme inline {
   --color-brand: var(--brand, #1f6b4f);
+  --color-brand-50: var(--brand-50, #e3f1ea);
+  --color-brand-ink: var(--brand-ink, #1f6b4f);
   --color-brand-contrast: var(--brand-contrast, #ffffff);
   --color-brand-2: var(--brand-2, #c23d17);
+  --color-brand-2-50: var(--brand-2-50, #ffede7);
+  --color-brand-2-ink: var(--brand-2-ink, #c23d17);
   --color-brand-2-contrast: var(--brand-2-contrast, #ffffff);
+  --color-brand-3: var(--brand-3, var(--brand, #1f6b4f));
+  --color-brand-3-50: var(--brand-3-50, var(--brand-50, #e3f1ea));
+  --color-brand-3-ink: var(--brand-3-ink, var(--brand-ink, #1f6b4f));
+  --color-brand-3-contrast: var(--brand-3-contrast, var(--brand-contrast, #ffffff));
   --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   --font-texto: var(--font-texto), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --header-h: calc(64px + env(safe-area-inset-top, 0px));
 }
 
 html {
@@ -176,19 +188,19 @@ body {
 }
 @utility btn-brand {
   @apply btn;
-  background: var(--color-brand-2);
-  color: var(--color-brand-2-contrast);
-  box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--color-brand-2) 55%, transparent);
+  background: var(--brand-2, #c23d17);
+  color: var(--brand-2-contrast, #ffffff);
+  box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--brand-2, #c23d17) 55%, transparent);
   &:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--color-brand-2) 88%, black);
+    background: color-mix(in srgb, var(--brand-2, #c23d17) 88%, black);
   }
 }
 @utility btn-secondary {
   @apply btn border-2 bg-papel;
-  border-color: var(--color-brand);
-  color: var(--color-brand);
+  border-color: var(--brand, #1f6b4f);
+  color: var(--brand, #1f6b4f);
   &:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--color-brand) 10%, white);
+    background: color-mix(in srgb, var(--brand, #1f6b4f) 10%, white);
   }
 }
 @utility btn-verde {
@@ -244,11 +256,41 @@ body {
 }
 @utility tag-brand {
   @apply tag;
-  background: color-mix(in srgb, var(--color-brand) 14%, white);
-  color: var(--color-brand);
+  background: var(--brand-50, #e3f1ea);
+  color: var(--brand-ink, #1f6b4f);
 }
 @utility tag-brand-2 {
   @apply tag;
-  background: color-mix(in srgb, var(--color-brand-2) 14%, white);
-  color: var(--color-brand-2);
+  background: var(--brand-2-50, #ffede7);
+  color: var(--brand-2-ink, #c23d17);
+}
+@utility tag-brand-3 {
+  @apply tag;
+  background: var(--brand-3-50, var(--brand-50, #e3f1ea));
+  color: var(--brand-3-ink, var(--brand-ink, #1f6b4f));
+}
+
+@utility tint-brand {
+  background: var(--brand-50, #e3f1ea);
+}
+@utility tint-brand-2 {
+  background: var(--brand-2-50, #ffede7);
+}
+@utility tint-brand-3 {
+  background: var(--brand-3-50, var(--brand-50, #e3f1ea));
+}
+@utility btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-md border-[1.5px] bg-transparent px-[18px] py-[10px] text-base font-bold transition;
+  line-height: 1.2;
+  border-color: var(--brand, #1f6b4f);
+  color: var(--brand-ink, #1f6b4f);
+  &:hover:not(:disabled) {
+    background: var(--brand-50, #e3f1ea);
+  }
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

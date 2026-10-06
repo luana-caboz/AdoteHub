@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { StickyHeader } from "@/components/catalog/sticky-header";
 import { brandStyle } from "@/lib/color";
 import { whatsappLink } from "@/lib/format";
 import { getPublicOrg } from "@/modules/organizations/public";
@@ -15,13 +16,14 @@ export default async function OrgPublicLayout({
   const org = await getPublicOrg(slug);
   if (!org) notFound();
 
-  const navLink = "rounded-md px-2 py-1 font-bold text-brand underline-offset-4 hover:underline";
+  const navLink = "rounded-md px-2 py-1 font-bold text-brand-ink underline-offset-4 hover:underline";
 
   return (
-    <div style={brandStyle(org.primaryColor, org.secondaryColor)} className="flex min-h-dvh flex-col">
-      <header className="border-b border-linha bg-papel">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href={`/${org.slug}`} className="flex items-center gap-3 rounded-md">
+    <div style={brandStyle(org.primaryColor, org.secondaryColor, org.supportColor)} className="flex min-h-dvh flex-col has-[[data-fab]]:pb-24">
+      <style>{"html{scroll-padding-top:var(--header-h)}"}</style>
+      <StickyHeader>
+        <div className="mx-auto flex h-full max-w-6xl items-center justify-between gap-3 px-4">
+          <Link href={`/${org.slug}`} className="flex min-w-0 items-center gap-3 rounded-md">
             {org.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={org.logoUrl} alt="" className="h-12 w-12 flex-none rounded-full border border-linha bg-papel object-contain p-0.5" />
@@ -30,14 +32,14 @@ export default async function OrgPublicLayout({
                 {org.name.charAt(0)}
               </span>
             )}
-            <span>
-              <span className="block font-display text-[28px] font-extrabold leading-none tracking-[-0.03em] text-brand">{org.name}</span>
+            <span className="min-w-0">
+              <span className="block truncate font-display text-[28px] font-extrabold leading-none tracking-[-0.03em] text-brand-ink">{org.name}</span>
               {(org.city || org.state) && (
-                <span className="corpo-p mt-1 block">{[org.city, org.state].filter(Boolean).join(" - ")}</span>
+                <span className="corpo-p mt-1 block truncate">{[org.city, org.state].filter(Boolean).join(" - ")}</span>
               )}
             </span>
           </Link>
-          <nav className="flex gap-2 text-sm">
+          <nav className="flex flex-none gap-2 text-sm">
             {org.whatsapp && (
               <a href={whatsappLink(org.whatsapp)} target="_blank" rel="noopener" className={navLink}>
                 WhatsApp
@@ -50,7 +52,7 @@ export default async function OrgPublicLayout({
             )}
           </nav>
         </div>
-      </header>
+      </StickyHeader>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12">{children}</main>
       <footer className="border-t border-linha bg-papel py-6">
         <Link href="/" className="mx-auto flex w-fit items-center gap-2 rounded-md text-sm font-semibold text-tinta-suave">
