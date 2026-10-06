@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { env } from "@/lib/env";
+import { getSiteUrl } from "@/lib/site-url";
 import { friendlyDbError, type ActionState } from "@/lib/errors";
 import { slugify, validateOrgSlug } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/server";
@@ -11,7 +11,7 @@ import type { Db } from "@/lib/supabase/types";
 import { requireOrgContext, requirePlatformAdmin } from "./service";
 import type { ExtraQuestion } from "./types";
 
-const inviteUrl = (token: string) => `${env.siteUrl}/convite/${token}`;
+const inviteUrl = async (token: string) => `${await getSiteUrl()}/convite/${token}`;
 
 const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
 const optionalText = (max: number) => z.preprocess(emptyToNull, z.string().trim().max(max).nullable());
@@ -64,7 +64,7 @@ export async function createOrganizationAction(
   return {
     ok: true,
     message: "ONG criada. Envie o link de convite para a responsável.",
-    data: { inviteUrl: inviteUrl(data.invite_token), slug: parsed.data.slug },
+    data: { inviteUrl: await inviteUrl(data.invite_token), slug: parsed.data.slug },
   };
 }
 
@@ -110,7 +110,7 @@ async function insertInvite(db: Db, orgId: string, userId: string, formData: For
     .select("token")
     .single();
   if (error || !data) return { ok: false, error: friendlyDbError(error) };
-  return { ok: true, message: "Convite criado. Envie o link.", data: { inviteUrl: inviteUrl(data.token) } };
+  return { ok: true, message: "Convite criado. Envie o link.", data: { inviteUrl: await inviteUrl(data.token) } };
 }
 
 export async function createInviteAction(

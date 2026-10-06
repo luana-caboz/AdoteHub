@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { safeNext } from "@/lib/auth/safe-next";
-import { env } from "@/lib/env";
+import { getSiteUrl } from "@/lib/site-url";
 import type { ActionState } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
@@ -44,7 +44,7 @@ export async function sendFirstAccessLinkAction(_prev: ActionState, formData: Fo
   const { error } = await db.auth.signInWithOtp({
     email: email.data,
     options: {
-      emailRedirectTo: `${env.siteUrl}/auth/callback?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: `${await getSiteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
       shouldCreateUser: true,
     },
   });
