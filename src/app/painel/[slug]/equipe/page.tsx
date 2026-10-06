@@ -3,7 +3,7 @@ import { removeMemberAction, revokeInviteAction } from "@/modules/organizations/
 import { listMembers, listPendingInvites } from "@/modules/organizations/repository";
 import { requireOrgContext } from "@/modules/organizations/service";
 import { ROLE_LABEL } from "@/modules/organizations/types";
-import { env } from "@/lib/env";
+import { getSiteUrl } from "@/lib/site-url";
 import { CopyButton } from "@/components/ui";
 import { TeamInviteForm } from "./invite-form";
 
@@ -11,6 +11,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { db, org, userId } = await requireOrgContext(slug, "admin");
   const [members, invites] = await Promise.all([listMembers(db, org.id), listPendingInvites(db, org.id)]);
+  const siteUrl = await getSiteUrl();
 
   return (
     <div className="flex flex-col gap-6">
@@ -31,7 +32,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
                   {i.email} · {ROLE_LABEL[i.role]} <span className="text-xs text-tinta-suave">até {formatDateTime(i.expiresAt)}</span>
                 </span>
                 <span className="flex gap-2">
-                  <CopyButton text={`${env.siteUrl}/convite/${i.token}`} />
+                  <CopyButton text={`${siteUrl}/convite/${i.token}`} />
                   <form action={revokeInviteAction}>
                     <input type="hidden" name="slug" value={slug} />
                     <input type="hidden" name="inviteId" value={i.id} />

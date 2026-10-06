@@ -8,7 +8,7 @@ export default async function SentPage({ params }: { params: Promise<{ slug: str
   if (!data) notFound();
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center gap-4 py-16 text-center">
-      <h1 className="display-l text-brand">Candidatura enviada!</h1>
+      <h1 className="display-l text-brand-ink">Candidatura enviada!</h1>
       <p className="lead">
         A equipe da {data.org.name} vai analisar suas respostas sobre {data.animal.name} e entrar em contato pelo WhatsApp
         ou e-mail.

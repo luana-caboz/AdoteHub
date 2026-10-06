@@ -1,17 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
-import { env } from "@/lib/env";
+import { getSiteUrl } from "@/lib/site-url";
 import { friendlyDbError, type ActionState } from "@/lib/errors";
 import { slugify, validateOrgSlug } from "@/lib/slug";
-import { createClient } from "@/lib/supabase/server";
 import type { Db } from "@/lib/supabase/types";
 import { requireOrgContext, requirePlatformAdmin } from "./service";
 import type { ExtraQuestion } from "./types";
 
-const inviteUrl = (token: string) => `${env.siteUrl}/convite/${token}`;
+const inviteUrl = async (token: string) => `${await getSiteUrl()}/convite/${token}`;
 
 const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
 const optionalText = (max: number) => z.preprocess(emptyToNull, z.string().trim().max(max).nullable());
@@ -64,7 +62,7 @@ export async function createOrganizationAction(
   return {
     ok: true,
     message: "ONG criada. Envie o link de convite para a responsável.",
-    data: { inviteUrl: inviteUrl(data.invite_token), slug: parsed.data.slug },
+    data: { inviteUrl: await inviteUrl(data.invite_token), slug: parsed.data.slug },
   };
 }
 
@@ -82,6 +80,19 @@ export async function adminUpdateOrganizationAction(formData: FormData) {
   revalidatePath("/admin");
 }
 
+export async function adminSetOrgHomeAction(formData: FormData) {
+  const { db } = await requirePlatformAdmin();
+  const city = optionalText(80).parse(formData.get("city"));
+  const { error } = await db.rpc("admin_set_org_home", {
+    p_org: String(formData.get("orgId")),
+    p_show: formData.get("showOnHome") === "on",
+    p_city: city,
+  });
+  if (error) throw new Error(friendlyDbError(error));
+  revalidatePath("/admin");
+  revalidatePath("/");
+}
+
 const inviteSchema = z.object({
   email: z.string().trim().toLowerCase().email("E-mail inválido"),
   role: z.enum(["member", "admin", "owner"]),
@@ -97,7 +108,7 @@ async function insertInvite(db: Db, orgId: string, userId: string, formData: For
     .select("token")
     .single();
   if (error || !data) return { ok: false, error: friendlyDbError(error) };
-  return { ok: true, message: "Convite criado. Envie o link.", data: { inviteUrl: inviteUrl(data.token) } };
+  return { ok: true, message: "Convite criado. Envie o link.", data: { inviteUrl: await inviteUrl(data.token) } };
 }
 
 export async function createInviteAction(
@@ -151,6 +162,7 @@ const brandSchema = z.object({
   name: z.string().trim().min(2).max(120),
   primaryColor: hexColor,
   secondaryColor: hexColor,
+  supportColor: z.preprocess(emptyToNull, hexColor.nullable()),
   city: optionalText(80),
   state: uf,
   contactEmail: z.preprocess(emptyToNull, z.string().trim().email("E-mail inválido").nullable()),
@@ -173,6 +185,7 @@ export async function updateBrandAction(_prev: ActionState, formData: FormData):
       name: d.name,
       primary_color: d.primaryColor.toLowerCase(),
       secondary_color: d.secondaryColor.toLowerCase(),
+      support_color: d.supportColor ? d.supportColor.toLowerCase() : null,
       city: d.city,
       state: d.state,
       contact_email: d.contactEmail,
@@ -222,12 +235,4 @@ export async function saveExtraQuestionsAction(_prev: ActionState, formData: For
   if (error) return { ok: false, error: friendlyDbError(error) };
   revalidatePath(`/${slug}`, "layout");
   return { ok: true, message: "Formulário atualizado." };
-}
-
-export async function acceptInviteAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const token = String(formData.get("token"));
-  const db = await createClient();
-  const { data: slug, error } = await db.rpc("accept_invite", { p_token: token });
-  if (error || typeof slug !== "string") return { ok: false, error: friendlyDbError(error) };
-  redirect(`/painel/${slug}`);
 }

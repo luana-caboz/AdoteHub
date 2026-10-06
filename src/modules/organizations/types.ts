@@ -23,6 +23,7 @@ export interface Organization {
   logoUrl: string | null;
   primaryColor: string;
   secondaryColor: string;
+  supportColor: string | null;
   city: string | null;
   state: string | null;
   contactEmail: string | null;
@@ -30,6 +31,7 @@ export interface Organization {
   instagram: string | null;
   maxPhotosPerAnimal: number;
   adoptionExtraQuestions: ExtraQuestion[];
+  showOnHome: boolean;
   archivedAt: string | null;
 }
 
@@ -54,4 +56,13 @@ export interface Membership {
   role: MemberRole;
   name: string;
   slug: string;
+  logoUrl: string | null;
+}
+
+export interface HomeOrg {
+  slug: string;
+  name: string;
+  logoUrl: string | null;
+  city: string | null;
+  availableAnimals: number;
 }

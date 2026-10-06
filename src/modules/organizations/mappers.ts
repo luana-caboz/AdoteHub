@@ -1,9 +1,9 @@
 import { publicMediaUrl } from "@/lib/env";
 import type { Row } from "@/lib/supabase/types";
-import type { ExtraQuestion, Membership, OrgInvite, OrgMember, Organization } from "./types";
+import type { ExtraQuestion, HomeOrg, Membership, OrgInvite, OrgMember, Organization } from "./types";
 
 export const ORG_COLUMNS =
-  "id, type, name, slug, logo_path, primary_color, secondary_color, city, state, contact_email, whatsapp, instagram, max_photos_per_animal, adoption_extra_questions, archived_at";
+  "id, type, name, slug, logo_path, primary_color, secondary_color, support_color, city, state, contact_email, whatsapp, instagram, max_photos_per_animal, adoption_extra_questions, show_on_home, archived_at";
 
 function toExtraQuestions(value: unknown): ExtraQuestion[] {
   if (!Array.isArray(value)) return [];
@@ -22,6 +22,7 @@ export function toOrganization(row: Row): Organization {
     logoUrl: publicMediaUrl(row.logo_path),
     primaryColor: row.primary_color,
     secondaryColor: row.secondary_color,
+    supportColor: row.support_color ?? null,
     city: row.city,
     state: row.state,
     contactEmail: row.contact_email,
@@ -29,6 +30,7 @@ export function toOrganization(row: Row): Organization {
     instagram: row.instagram,
     maxPhotosPerAnimal: row.max_photos_per_animal,
     adoptionExtraQuestions: toExtraQuestions(row.adoption_extra_questions),
+    showOnHome: Boolean(row.show_on_home),
     archivedAt: row.archived_at,
   };
 }
@@ -54,5 +56,16 @@ export function toMembership(row: Row): Membership {
     role: row.role,
     name: row.organizations?.name ?? "",
     slug: row.organizations?.slug ?? "",
+    logoUrl: publicMediaUrl(row.organizations?.logo_path),
+  };
+}
+
+export function toHomeOrg(row: Row): HomeOrg {
+  return {
+    slug: row.slug,
+    name: row.name,
+    logoUrl: publicMediaUrl(row.logo_path),
+    city: row.city,
+    availableAnimals: Number(row.available_animals_count) || 0,
   };
 }

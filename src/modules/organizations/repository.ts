@@ -1,6 +1,6 @@
 import type { Db, Row } from "@/lib/supabase/types";
-import { ORG_COLUMNS, toInvite, toMember, toMembership, toOrganization } from "./mappers";
-import type { MemberRole, Membership, OrgInvite, OrgMember, Organization } from "./types";
+import { ORG_COLUMNS, toHomeOrg, toInvite, toMember, toMembership, toOrganization } from "./mappers";
+import type { HomeOrg, MemberRole, Membership, OrgInvite, OrgMember, Organization } from "./types";
 
 export async function findOrgBySlug(db: Db, slug: string): Promise<Organization | null> {
   const { data, error } = await db.from("organizations").select(ORG_COLUMNS).eq("slug", slug).maybeSingle();
@@ -17,7 +17,7 @@ export async function listAllOrganizations(db: Db): Promise<Organization[]> {
 export async function listMemberships(db: Db, userId: string): Promise<Membership[]> {
   const { data, error } = await db
     .from("organization_members")
-    .select("organization_id, role, organizations(name, slug)")
+    .select("organization_id, role, organizations(name, slug, logo_path)")
     .eq("user_id", userId);
   if (error) throw error;
   return (data ?? []).map((r: Row) => toMembership(r));
@@ -57,4 +57,10 @@ export async function isPlatformAdmin(db: Db): Promise<boolean> {
   const { data, error } = await db.rpc("is_platform_admin");
   if (error) throw error;
   return data === true;
+}
+
+export async function listHomeOrgs(db: Db): Promise<HomeOrg[]> {
+  const { data, error } = await db.rpc("list_home_orgs");
+  if (error) throw error;
+  return (data ?? []).map((r: Row) => toHomeOrg(r));
 }

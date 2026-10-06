@@ -22,10 +22,10 @@ export default async function AdoptPage({ params }: { params: Promise<{ slug: st
           <img src={cover.thumbUrl} alt="" className="h-20 w-20 rounded-md object-cover" />
         )}
         <div>
-          <Link href={animalPath(slug, animal.name, animal.code)} className="font-bold text-brand underline underline-offset-4">
+          <Link href={animalPath(slug, animal.name, animal.code)} className="font-bold text-brand-ink underline underline-offset-4">
             ← {animal.name}
           </Link>
-          <h1 className="display-l text-brand">Formulário de adoção</h1>
+          <h1 className="display-l text-brand-ink">Formulário de adoção</h1>
           <p className="lead">
             Para adotar {animal.name} com {org.name}. Leva uns 5 minutos.
           </p>

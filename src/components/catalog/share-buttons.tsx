@@ -1,16 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import { ShareIcon } from "./icons";
 
-export function ShareButtons({ url, title, text }: { url: string; title: string; text: string }) {
+export function ShareButtons({
+  url,
+  title,
+  text,
+  withIcon = false,
+}: {
+  url: string;
+  title: string;
+  text: string;
+  withIcon?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
-  const message = `${text} ${url}`;
 
   return (
     <div className="flex flex-wrap gap-2">
       <button
         type="button"
-        className="btn-secondary"
+        className={withIcon ? "btn-ghost" : "btn-secondary"}
         onClick={async () => {
           if (navigator.share) {
             try {
@@ -24,24 +34,9 @@ export function ShareButtons({ url, title, text }: { url: string; title: string;
           setTimeout(() => setCopied(false), 1500);
         }}
       >
+        {withIcon && <ShareIcon className="h-5 w-5" />}
         {copied ? "Link copiado!" : "Compartilhar"}
       </button>
-      <a
-        className="btn-secondary"
-        href={`https://wa.me/?text=${encodeURIComponent(message)}`}
-        target="_blank"
-        rel="noopener"
-      >
-        WhatsApp
-      </a>
-      <a
-        className="btn-secondary"
-        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
-        target="_blank"
-        rel="noopener"
-      >
-        Facebook
-      </a>
     </div>
   );
 }

@@ -32,7 +32,7 @@
 |---|---|
 | Fotos no Supabase Storage, comprimidas no navegador (JPEG 1600px + miniatura 480px) | Uma conta a menos; JPEG porque o gerador do card social não lê WebP |
 | Convite = link copiável (WhatsApp/e-mail), preso ao e-mail convidado, válido 14 dias | Não depende de e-mail transacional próprio; evita repasse do link |
-| Login só por link mágico (sem senha) | Menos suporte para ONGs |
+| Primeiro acesso por link no e-mail (confirma o e-mail e cria a senha); depois, login com e-mail e senha | Menos e-mails e menos espera a cada entrada; o link serve também para recuperar a senha |
 | Todo animal tem **ID obrigatório e único por ONG** (`external_id`), no cadastro manual e na planilha | Nomes se repetem; o ID é a chave da importação e da sync. Planilha sem coluna de ID não importa |
 | Colunas não mapeadas não são tocadas na reimportação | Não apagar o que a ONG preencheu na plataforma |
 | Admin da plataforma não vê candidaturas | Acesso mínimo (LGPD) |

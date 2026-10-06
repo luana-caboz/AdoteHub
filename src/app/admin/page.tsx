@@ -1,5 +1,5 @@
 import { PlatformHeader } from "@/components/brand/logo";
-import { adminUpdateOrganizationAction } from "@/modules/organizations/actions";
+import { adminSetOrgHomeAction, adminUpdateOrganizationAction } from "@/modules/organizations/actions";
 import { listAllOrganizations } from "@/modules/organizations/repository";
 import { requirePlatformAdmin } from "@/modules/organizations/service";
 import type { Metadata } from "next";
@@ -84,6 +84,34 @@ export default async function AdminPage() {
                 </div>
               </form>
             </div>
+            <form action={adminSetOrgHomeAction} className="flex flex-col gap-3 rounded-md bg-verde-50 p-4">
+              <input type="hidden" name="orgId" value={org.id} />
+              <p className="rotulo text-verde">Home do AdoteHub</p>
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-bold text-tinta" htmlFor={`city-${org.id}`}>
+                    Cidade na home
+                  </label>
+                  <input id={`city-${org.id}`} name="city" defaultValue={org.city ?? ""} maxLength={80} className="input w-56" />
+                </div>
+                <label className="flex cursor-pointer items-center gap-3 py-3 text-sm font-bold text-tinta">
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    name="showOnHome"
+                    defaultChecked={org.showOnHome}
+                    className="peer sr-only"
+                  />
+                  <span
+                    aria-hidden
+                    className="relative h-7 w-12 flex-none rounded-pill bg-cinza/40 transition after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-papel after:shadow-card after:transition peer-checked:bg-verde peer-checked:after:translate-x-5 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-foco"
+                  />
+                  Aparecer na home
+                </label>
+                <button className="btn-verde">Salvar</button>
+              </div>
+              <p className="text-xs text-tinta-suave">Só aparece se a ONG não estiver arquivada. A ONG não altera isso.</p>
+            </form>
           </article>
         ))}
       </section>

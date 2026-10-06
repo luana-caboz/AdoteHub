@@ -18,7 +18,7 @@ function Radios({ name, items, error }: { name: string; items: Record<string, st
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap gap-2">
         {Object.entries(items).map(([value, label]) => (
-          <label key={value} className={`flex cursor-pointer items-center gap-2 rounded-md border-[1.5px] bg-papel px-4 py-2.5 text-sm font-semibold has-[:checked]:border-brand has-[:checked]:bg-[color-mix(in_srgb,var(--color-brand)_12%,white)] has-[:checked]:text-brand has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foco ${error ? "border-erro" : "border-linha"}`}>
+          <label key={value} className={`flex cursor-pointer items-center gap-2 rounded-md border-[1.5px] bg-papel px-4 py-2.5 text-sm font-semibold has-[:checked]:border-brand has-[:checked]:bg-[color-mix(in_srgb,var(--color-brand)_12%,white)] has-[:checked]:text-brand-ink has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foco ${error ? "border-erro" : "border-linha"}`}>
             <input type="radio" name={name} value={value} className="sr-only" />
             {label}
           </label>
@@ -66,7 +66,7 @@ export function AdoptionForm({
       </div>
 
       <section className="card flex flex-col gap-4">
-        <h2 className="titulo-card text-brand">Seus dados</h2>
+        <h2 className="titulo-card text-brand-ink">Seus dados</h2>
         <Field label="Nome completo" name="name" error={err("name")}>
           <input id="name" name="name" autoComplete="name" required className="input" />
         </Field>
@@ -94,7 +94,7 @@ export function AdoptionForm({
       </section>
 
       <section className="card flex flex-col gap-5">
-        <h2 className="titulo-card text-brand">Sua casa e rotina</h2>
+        <h2 className="titulo-card text-brand-ink">Sua casa e rotina</h2>
         <Question label="Você mora em">
           <Radios name="housing_type" items={HOUSING_TYPE} error={err("housing_type")} />
         </Question>
@@ -129,7 +129,7 @@ export function AdoptionForm({
 
       {extraQuestions.length > 0 && (
         <section className="card flex flex-col gap-4">
-          <h2 className="titulo-card text-brand">Perguntas da {orgName}</h2>
+          <h2 className="titulo-card text-brand-ink">Perguntas da {orgName}</h2>
           {extraQuestions.map((q) => (
             <Field key={q.id} label={`${q.label}${q.required ? " *" : ""}`} name={`extra_${q.id}`} error={err(`extra_${q.id}`)}>
               <textarea id={`extra_${q.id}`} name={`extra_${q.id}`} rows={2} className="input" />
