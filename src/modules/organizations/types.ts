@@ -55,6 +55,7 @@ export interface Membership {
   role: MemberRole;
   name: string;
   slug: string;
+  logoUrl: string | null;
 }
 
 export interface HomeOrg {

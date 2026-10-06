@@ -55,6 +55,7 @@ export function toMembership(row: Row): Membership {
     role: row.role,
     name: row.organizations?.name ?? "",
     slug: row.organizations?.slug ?? "",
+    logoUrl: publicMediaUrl(row.organizations?.logo_path),
   };
 }
 

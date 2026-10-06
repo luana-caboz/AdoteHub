@@ -17,7 +17,7 @@ export async function listAllOrganizations(db: Db): Promise<Organization[]> {
 export async function listMemberships(db: Db, userId: string): Promise<Membership[]> {
   const { data, error } = await db
     .from("organization_members")
-    .select("organization_id, role, organizations(name, slug)")
+    .select("organization_id, role, organizations(name, slug, logo_path)")
     .eq("user_id", userId);
   if (error) throw error;
   return (data ?? []).map((r: Row) => toMembership(r));
